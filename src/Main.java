@@ -1,44 +1,56 @@
 import model.Delivery;
 import model.Match;
 
-
 import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.io.Reader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static List<Match> matchList = new ArrayList<>();
     public static List<Delivery> deliveryList = new ArrayList<>();
 
+    private static final String CSV_SPLIT_REGEX = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
+
     public static void main(String[] args) {
-
-readDeliveryDataFromCsv();
-readMatchDataFromCsv();
-
-
+        readDeliveryDataFromCsv();
+        readMatchDataFromCsv();
     }
-    private static void readDeliveryDataFromCsv() {
 
+
+    private static String[] splitCsvLine(String line) {
+        String[] parts = line.split(CSV_SPLIT_REGEX, -1);
+        for (int i = 0; i < parts.length; i++) {
+            parts[i] = clean(parts[i]);
+        }
+        return parts;
+    }
+
+    private static String clean(String value) {
+        value = value.trim();
+        if (value.length() >= 2 && value.startsWith("\"") && value.endsWith("\"")) {
+            value = value.substring(1, value.length() - 1);
+        }
+        return value.replace("\"\"", "\"");   // escaped quotes "" -> "
+    }
+
+    private static int toInt(String value) {
+        return value.isEmpty() ? 0 : Integer.parseInt(value);
+    }
+
+
+    private static void readDeliveryDataFromCsv() {
         String filePath = "deliveries.csv";
 
-        try (
-                Reader reader = Files.newBufferedReader(Path.of(filePath));
-                CSVParser parser = CSVFormat.DEFAULT.builder()
-                        .setHeader()
-                        .setSkipHeaderRecord(true)
-                        .get()
-                        .parse(reader)
-        ) {
+        try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
+            reader.readLine(); // skip header
 
-            for (CSVRecord record : parser) {
-                deliveryList.add(createDelivery(record));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.isBlank()) continue;
+                deliveryList.add(createDelivery(splitCsvLine(line)));
             }
 
             System.out.println("Total deliveries: " + deliveryList.size());
@@ -47,48 +59,44 @@ readMatchDataFromCsv();
             e.printStackTrace();
         }
     }
-    private static Delivery createDelivery(CSVRecord data) {
 
+    private static Delivery createDelivery(String[] data) {
         return new Delivery(
-                Integer.parseInt(data.get(0)),  // matchId
-                Integer.parseInt(data.get(1)),  // inning
-                data.get(2),                    // battingTeam
-                data.get(3),                    // bowlingTeam
-                Integer.parseInt(data.get(4)),  // over
-                Integer.parseInt(data.get(5)),  // ball
-                data.get(6),                    // batsman
-                data.get(7),                    // nonStriker
-                data.get(8),                    // bowler
-                Integer.parseInt(data.get(9)) != 0,  // isSuperOver
-                Integer.parseInt(data.get(10)), // wideRuns
-                Integer.parseInt(data.get(11)), // byeRuns
-                Integer.parseInt(data.get(12)), // legbyeRuns
-                Integer.parseInt(data.get(13)), // noballRuns
-                Integer.parseInt(data.get(14)), // penaltyRuns
-                Integer.parseInt(data.get(15)), // batsmanRuns
-                Integer.parseInt(data.get(16)), // extraRuns
-                Integer.parseInt(data.get(17)), // totalRuns
-                data.get(18),                   // playerDismissed
-                data.get(19),                   // dismissalKind
-                data.get(20)                    // fielder
+                toInt(data[0]),          // matchId
+                toInt(data[1]),          // inning
+                data[2],                 // battingTeam
+                data[3],                 // bowlingTeam
+                toInt(data[4]),          // over
+                toInt(data[5]),          // ball
+                data[6],                 // batsman
+                data[7],                 // nonStriker
+                data[8],                 // bowler
+                toInt(data[9]) != 0,     // isSuperOver
+                toInt(data[10]),         // wideRuns
+                toInt(data[11]),         // byeRuns
+                toInt(data[12]),         // legbyeRuns
+                toInt(data[13]),         // noballRuns
+                toInt(data[14]),         // penaltyRuns
+                toInt(data[15]),         // batsmanRuns
+                toInt(data[16]),         // extraRuns
+                toInt(data[17]),         // totalRuns
+                data[18],                // playerDismissed
+                data[19],                // dismissalKind
+                data[20]                 // fielder
         );
     }
 
-    private static void readMatchDataFromCsv() {
 
+    private static void readMatchDataFromCsv() {
         String filePath = "matches.csv";
 
-        try (
-                Reader reader = Files.newBufferedReader(Path.of(filePath));
-                CSVParser parser = CSVFormat.DEFAULT.builder()
-                        .setHeader()
-                        .setSkipHeaderRecord(true)
-                        .get()
-                        .parse(reader)
-        ) {
+        try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
+            reader.readLine(); // skip header
 
-            for (CSVRecord record : parser) {
-                matchList.add(createMatch(record));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.isBlank()) continue;
+                matchList.add(createMatch(splitCsvLine(line)));
             }
 
             System.out.println("Total matches: " + matchList.size());
@@ -100,41 +108,32 @@ readMatchDataFromCsv();
         printAllPlayerOfTheMatch();
     }
 
-    private static Match createMatch(CSVRecord data) {
-
+    private static Match createMatch(String[] data) {
         return new Match(
-                Integer.parseInt(data.get(0)),  // id
-                Integer.parseInt(data.get(1)),  // season
-                data.get(2),                    // city
-                data.get(3),                    // date
-                data.get(4),                    // team1
-                data.get(5),                    // team2
-                data.get(6),                    // tossWinner
-                data.get(7),                    // tossDecision
-                data.get(8),                    // result
-                Integer.parseInt(data.get(9)) != 0,  // dlApplied
-                data.get(10),                   // winner
-                Integer.parseInt(data.get(11)), // winByRuns
-                Integer.parseInt(data.get(12)), // winByWickets
-                data.get(13),                   // playerOfMatch
-                data.get(14),                   // venue
-                data.get(15),                   // umpire1
-                data.get(16),                   // umpire2
-                data.get(17)                    // umpire3
+                toInt(data[0]),          // id
+                toInt(data[1]),          // season
+                data[2],                 // city
+                data[3],                 // date
+                data[4],                 // team1
+                data[5],                 // team2
+                data[6],                 // tossWinner
+                data[7],                 // tossDecision
+                data[8],                 // result
+                toInt(data[9]) != 0,     // dlApplied
+                data[10],                // winner
+                toInt(data[11]),         // winByRuns
+                toInt(data[12]),         // winByWickets
+                data[13],                // playerOfMatch
+                data[14],                // venue
+                data[15],                // umpire1
+                data[16],                // umpire2
+                data[17]                 // umpire3
         );
     }
-    private static void printAllPlayerOfTheMatch(){
-        for(Match match :matchList){
+
+    private static void printAllPlayerOfTheMatch() {
+        for (Match match : matchList) {
             System.out.println(match.getPlayerOfMatch());
         }
     }
-
-
-
-
-
-
-
-
-
 }
