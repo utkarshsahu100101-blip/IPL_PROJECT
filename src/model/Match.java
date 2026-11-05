@@ -11,7 +11,7 @@ public class Match {
     private String tossWinner;
     private String tossDecision;
     private String result;
-    private int dlApplied;
+    private boolean dlApplied;
     private String winner;
     private int winByRuns;
     private int winByWickets;
@@ -24,7 +24,7 @@ public class Match {
     // Constructor
     public Match(int id, int season, String city, String date,
                  String team1, String team2, String tossWinner,
-                 String tossDecision, String result, int dlApplied,
+                 String tossDecision, String result, boolean dlApplied,
                  String winner, int winByRuns, int winByWickets,
                  String playerOfMatch, String venue,
                  String umpire1, String umpire2, String umpire3) {
@@ -49,8 +49,6 @@ public class Match {
         this.umpire3 = umpire3;
     }
 
-    public Match(Match match) {
-    }
 
     // Getters
 
@@ -90,7 +88,7 @@ public class Match {
         return result;
     }
 
-    public int getDlApplied() {
+    public boolean getDlApplied() {
         return dlApplied;
     }
 

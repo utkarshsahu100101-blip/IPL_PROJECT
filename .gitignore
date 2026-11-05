@@ -28,3 +28,13 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+# Gradle
+.gradle/
+build/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Java compiled files
+*.class
