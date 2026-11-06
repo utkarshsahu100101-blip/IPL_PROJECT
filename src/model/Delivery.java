@@ -97,7 +97,7 @@ public class Delivery {
         return bowler;
     }
 
-    public boolean getIsSuperOver() {
+    public boolean isSuperOver() {
         return isSuperOver;
     }
 

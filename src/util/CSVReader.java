@@ -14,9 +14,9 @@ public class CSVReader {
 
     private static final String CSV_SPLIT_REGEX = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
 
-    public static List<Match> readMatches(String filePath) {
+    public static List<Match> readMatches() {
         List<Match> matches = new ArrayList<>();
-        try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
+        try (BufferedReader reader = Files.newBufferedReader(Path.of("matches.csv"))) {
             reader.readLine(); // skip header
             String line;
             while ((line = reader.readLine()) != null) {
@@ -29,9 +29,9 @@ public class CSVReader {
         return matches;
     }
 
-    public static List<Delivery> readDeliveries(String filePath) {
+    public static List<Delivery> readDeliveries() {
         List<Delivery> deliveries = new ArrayList<>();
-        try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
+        try (BufferedReader reader = Files.newBufferedReader(Path.of("deliveries.csv"))) {
             reader.readLine(); // skip header
             String line;
             while ((line = reader.readLine()) != null) {
